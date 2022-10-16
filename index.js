@@ -25,6 +25,13 @@ app.get("/", (req, res) => {
     console.log(err);
   }
 });
+app.get("/dashboard", (req, res) => {
+  try {
+    res.json("Welcome");
+  } catch (err) {
+    console.log(err);
+  }
+});
 
 app.post("/", upload.single("images"), (req, res) => {
   try {
