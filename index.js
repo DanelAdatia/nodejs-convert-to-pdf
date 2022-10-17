@@ -62,11 +62,7 @@ app.post("/", upload.single("images"), (req, res) => {
         fs.readFileSync(req.file.path), // Buffer
       ];
       fs.access("./pdfs", (error) => {
-        // To check if the given directory
-        // already exists or not
         if (error) {
-          // If current directory does not exist
-          // then create it
           fs.mkdir("./pdfs", (error) => {
             if (error) {
               imgToPDF(pages, imgToPDF.sizes.A4).pipe(
@@ -103,7 +99,7 @@ app.post("/", upload.single("images"), (req, res) => {
   }
 });
 
-const PORT = 4001;
+const PORT = 5000;
 app.listen(PORT, () => {
   console.log("App is running");
 });
