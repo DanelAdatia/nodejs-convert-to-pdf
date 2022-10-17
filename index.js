@@ -1,13 +1,28 @@
 const express = require("express");
 const multer = require("multer");
 const imgToPDF = require("image-to-pdf");
+const fs = require("fs");
 
+const path = "./upload";
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(
-      null,
-      "https://nodejs-convert-to-idro7t3kd-daneladatia.vercel.app/upload"
-    );
+    fs.access(path, (error) => {
+      // To check if the given directory
+      // already exists or not
+      if (error) {
+        // If current directory does not exist
+        // then create it
+        fs.mkdir(path, (error) => {
+          if (error) {
+            cb(null, path);
+          } else {
+            cb(null, path);
+          }
+        });
+      } else {
+        cb(null, path);
+      }
+    });
   },
   filename: function (req, file, cb) {
     const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
@@ -18,16 +33,12 @@ const storage = multer.diskStorage({
 const upload = multer({ storage: storage });
 const app = express();
 app.use(express.json());
-const fs = require("fs");
+
 app.use(express.urlencoded({ extended: true }));
 
 app.get("/", (req, res) => {
   try {
-    res.download(
-      `https://nodejs-convert-to-idro7t3kd-daneladatia.vercel.app/pdfs/${
-        Object.keys(req.query)[0]
-      }.pdf`
-    );
+    res.download(`./pdfs/${Object.keys(req.query)[0]}.pdf`);
   } catch (err) {
     console.log(err);
   }
@@ -50,16 +61,32 @@ app.post("/", upload.single("images"), (req, res) => {
       const pages = [
         fs.readFileSync(req.file.path), // Buffer
       ];
+      fs.access("./pdfs", (error) => {
+        // To check if the given directory
+        // already exists or not
+        if (error) {
+          // If current directory does not exist
+          // then create it
+          fs.mkdir("./pdfs", (error) => {
+            if (error) {
+              imgToPDF(pages, imgToPDF.sizes.A4).pipe(
+                fs.createWriteStream(`./pdfs/${splitJpeg[0]}.pdf`)
+              );
+            } else {
+              imgToPDF(pages, imgToPDF.sizes.A4).pipe(
+                fs.createWriteStream(`./pdfs/${splitJpeg[0]}.pdf`)
+              );
+            }
+          });
+        } else {
+          imgToPDF(pages, imgToPDF.sizes.A4).pipe(
+            fs.createWriteStream(`./pdfs/${splitJpeg[0]}.pdf`)
+          );
+        }
+      });
 
-      imgToPDF(pages, imgToPDF.sizes.A4).pipe(
-        fs.createWriteStream(
-          `https://nodejs-convert-to-idro7t3kd-daneladatia.vercel.app/pdfs/${splitJpeg[0]}.pdf`
-        )
-      );
       setTimeout(() => {
-        fs.unlinkSync(
-          `https://nodejs-convert-to-idro7t3kd-daneladatia.vercel.app/pdfs/${splitJpeg[0]}.pdf`
-        );
+        fs.unlinkSync(`./pdfs/${splitJpeg[0]}.pdf`);
       }, 5000);
     }
     setTimeout(() => {
@@ -76,7 +103,7 @@ app.post("/", upload.single("images"), (req, res) => {
   }
 });
 
-const PORT = 5000;
+const PORT = 4001;
 app.listen(PORT, () => {
   console.log("App is running");
 });
