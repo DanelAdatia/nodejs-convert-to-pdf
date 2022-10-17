@@ -116,7 +116,7 @@ app.post("/", upload.single("images"), (req, res) => {
   }
 });
 
-const PORT = 4001;
+const PORT = 5000;
 app.listen(PORT, () => {
   console.log("App is running");
 });
